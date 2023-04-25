@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "ChatGPT Session Manager",
+  "version": "1.0",
+  "description": "Enables teams to collaborate on chat responses using ChatGPT",
+  "icons": {
+    "48": "icons/logo.png",
+    "96": "icons/logo.png"
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icons/logo.png",
+      "96": "icons/logo.png"
+    }
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  }
+}
