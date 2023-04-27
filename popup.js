@@ -1,28 +1,47 @@
 const nameInput = document.getElementById("name-input");
-const connectBtn = document.getElementById("connect-btn");
-const disconnectBtn = document.getElementById("disconnect-btn");
-const nameList = document.getElementById("name-list");
+const addBtn = document.getElementById("add-btn");
+const removeBtn = document.getElementById("remove-btn");
+const currentName = document.getElementById("current-name").querySelector("span");
 
-let names = [];
+let storedName = localStorage.getItem("name") || "";
+let sessionId = storedName || generateSessionId();
 
-function renderNames() {
-  nameList.innerHTML = "";
-  for (let name of names) {
-    let li = document.createElement("li");
-    li.innerText = name;
-    nameList.appendChild(li);
-  }
+if (!storedName) {
+  localStorage.setItem("name", sessionId);
 }
 
-connectBtn.addEventListener("click", () => {
-  let name = nameInput.value;
-  if (name) {
-    names.push(name);
-    renderNames();
+updateCurrentName(sessionId);
+
+addBtn.addEventListener("click", () => {
+  let inpName = nameInput.value.trim();
+  if (inpName) {
+    sessionId = inpName;
+    localStorage.setItem("name", inpName);
+    updateCurrentName(sessionId);
+    nameInput.value = "";
   }
 });
 
-disconnectBtn.addEventListener("click", () => {
-  names = [];
-  renderNames();
+removeBtn.addEventListener("click", () => {
+  if (sessionId) {
+    localStorage.removeItem("name");
+    sessionId = generateSessionId();
+    localStorage.setItem("name", sessionId);
+    updateCurrentName(sessionId);
+  }
 });
+
+function updateCurrentName(name) {
+  currentName.textContent = name;
+}
+
+// Generate a random session ID
+function generateSessionId() {
+  let length = 8;
+  let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}

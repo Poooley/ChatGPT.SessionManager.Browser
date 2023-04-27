@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>ChatGPT Session Manager</title>
-  <meta charset="utf-8">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firefox Web-Ext</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <h1>ChatGPT Session Manager</h1>
-  <label for="name-input">Enter your name:</label>
-  <input id="name-input" type="text">
-  <button id="connect-btn"><img src="icons/add.svg" alt="Connect"></button>
-  <button id="disconnect-btn"><img src="icons/remove.svg" alt="Disconnect"></button>
-  <ul id="name-list"></ul>
-  <script src="popup.js"></script>
+    <label for="name-input">Enter your name:</label>
+    <input type="text" id="name-input">
+    <button id="add-btn">Add Name</button>
+    <button id="remove-btn">Remove Name</button>
+    <h2 id="current-name">Current Name: <span></span></h2>
+    <script src="popup.js"></script>
 </body>
 </html>
+

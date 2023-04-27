@@ -30,35 +30,11 @@ button {
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
-}
-
-#connect-btn {
+    background-color: #4CAF50;
     color: white;
 }
 
-#disconnect-btn {
-    color: white;
-}
-
-img {
-    vertical-align: middle;
-    margin-right: 5px;
-}
-
-#connect-btn img {
-    height: 20px;
-    width: 20px;
-}
-
-#disconnect-btn img {
-    height: 20px;
-    width: 20px;
-}
-
-button {
-    margin-top: 20px;
-}
-
-button img {
-    margin-bottom: -4px;
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
