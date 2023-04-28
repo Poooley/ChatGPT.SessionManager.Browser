@@ -4,35 +4,49 @@ const removeBtn = document.getElementById("remove-btn");
 const currentName = document.getElementById("current-name").querySelector("span");
 
 let storedName = localStorage.getItem("name") || "";
-let sessionId = storedName || generateSessionId();
+let sessionId = localStorage.getItem("sessionId") || generateSessionId();
 
 if (!storedName) {
   localStorage.setItem("name", sessionId);
 }
 
-updateCurrentName(sessionId);
+if (!localStorage.getItem("sessionId")) {
+  localStorage.setItem("sessionId", sessionId);
+}
 
+refresh();
+
+// add button
 addBtn.addEventListener("click", () => {
   let inpName = nameInput.value.trim();
   if (inpName) {
-    sessionId = inpName;
-    localStorage.setItem("name", inpName);
-    updateCurrentName(sessionId);
-    nameInput.value = "";
+    setNameAndUpdate(inpName);
   }
 });
 
+// remove button
 removeBtn.addEventListener("click", () => {
   if (sessionId) {
+    storedName = "";
     localStorage.removeItem("name");
-    sessionId = generateSessionId();
-    localStorage.setItem("name", sessionId);
-    updateCurrentName(sessionId);
+    refresh();
   }
 });
 
-function updateCurrentName(name) {
-  currentName.textContent = name;
+function setNameAndUpdate(name) {
+  storedName = name;
+  localStorage.setItem("name", name);
+  refresh();
+}
+
+function setSessionAndUpdate(session) {
+  sessionId = session;
+  localStorage.setItem("sessionId", session);
+  refresh();
+}
+
+function refresh() {
+  currentName.textContent = storedName + " (" + sessionId + ")";
 }
 
 // Generate a random session ID
