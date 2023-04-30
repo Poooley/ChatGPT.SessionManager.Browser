@@ -3,6 +3,11 @@
   "name": "ChatGPT Session Manager",
   "version": "1.0",
   "description": "Enables teams to collaborate on chat responses using ChatGPT",
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>"
+  ],
   "icons": {
     "48": "icons/logo.png",
     "96": "icons/logo.png"
@@ -17,5 +22,11 @@
   "background": {
     "scripts": ["background.js"],
     "persistent": false
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://chat.openai.com/*"],
+      "js": ["content-script.js"]
+    }
+  ]
 }

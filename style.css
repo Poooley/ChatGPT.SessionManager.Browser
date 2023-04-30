@@ -38,3 +38,22 @@ button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
+
+#user-list {
+    margin-top: 20px;
+  }
+  
+  #users {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  #users li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  #users li:last-child {
+    border-bottom: none;
+  }
+  

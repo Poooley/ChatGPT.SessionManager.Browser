@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "firefox",
+      "request": "launch",
+      "reAttach": true,
+      "name": "Launch Web Extension",
+      "addonPath": "/home/paul/repos/ChatGPT.SessionManager.Firefox",
+      "firefoxExecutable": "/usr/bin/firefox",
+      "firefoxArgs": ["--start-debugger-server", "6000"],
+      "port": 6000
+    }
+  ]
+}

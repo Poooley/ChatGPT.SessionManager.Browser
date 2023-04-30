@@ -6,17 +6,13 @@ const currentName = document.getElementById("current-name").querySelector("span"
 let storedName = localStorage.getItem("name") || "";
 let sessionId = localStorage.getItem("sessionId") || generateSessionId();
 
-if (!storedName) {
-  localStorage.setItem("name", sessionId);
-}
-
 if (!localStorage.getItem("sessionId")) {
   localStorage.setItem("sessionId", sessionId);
+  console.warn("No session ID found, generating a new one: " + sessionId);
 }
 
 refresh();
 
-// add button
 addBtn.addEventListener("click", () => {
   let inpName = nameInput.value.trim();
   if (inpName) {
@@ -59,3 +55,26 @@ function generateSessionId() {
   }
   return result;
 }
+
+function fetchRegisteredUsers() {
+  // Replace with your internal API URL
+  const apiUrl = "https://your-internal-api-url.com/api/endpoint";
+
+  fetch(apiUrl)
+    .then((response) => response.json())
+    .then((users) => {
+      const userList = document.getElementById("users");
+      userList.innerHTML = "";
+
+      users.forEach((user) => {
+        const li = document.createElement("li");
+        li.textContent = user.name + " (" + user.sessionId + ")";
+        userList.appendChild(li);
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching registered users:", error);
+    });
+}
+
+// fetchRegisteredUsers();
