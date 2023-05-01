@@ -1,59 +1,103 @@
+body {
+  background-color: #f1f1f1;
+  font-family: sans-serif;
+  font-size: 16px;
+}
+
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
 h1 {
-    font-size: 24px;
-    font-weight: bold;
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 20px;
 }
 
 label {
-    display: block;
-    margin-bottom: 10px;
+  display: block;
+  margin-bottom: 10px;
 }
 
-input {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+input[type="text"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
 button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    padding: 10px;
-    margin-top: 10px;
-    margin-right: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #4CAF50;
-    color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 10px;
+  margin-top: 10px;
+  margin-right: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #4CAF50;
+  color: white;
+  transition: background-color 0.2s ease-in-out;
 }
 
 button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
-#user-list {
-    margin-top: 20px;
-  }
-  
-  #users {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  #users li {
-    padding: 8px 0;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  #users li:last-child {
-    border-bottom: none;
-  }
-  
+button:hover:not(:disabled) {
+  background-color: #3E8E41;
+}
+
+ul {
+  list-style-type: none;
+  margin-top: 20px;
+  padding: 0;
+}
+
+ul li {
+  padding: 8px 0;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+ul li:last-child {
+  border-bottom: none;
+}
+
+ul li .delete-btn {
+  background-color: #f44336;
+}
+
+ul li .delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+ul li .delete-btn:active {
+  background-color: #b71c1c;
+}
+
+ul li .delete-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+ul li .delete-btn:enabled:hover {
+  background-color: #d32f2f;
+  cursor: pointer;
+}
+

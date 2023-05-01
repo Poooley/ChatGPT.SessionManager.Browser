@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firefox Web-Ext</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatGPT Session Manager</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>ChatGPT Session Manager</h1>
-    <label for="name-input">Enter your name:</label>
-    <input type="text" id="name-input">
-    <button id="add-btn">Add Name</button>
-    <button id="remove-btn">Remove Name</button>
-    <h2 id="current-name">Current Name: <span></span></h2>
-    <script src="popup.js"></script>
+  <div class="container">
+    <h1>ChatGPT Session Manager</h1>
+    <label for="api-key-input">Enter your API key:</label>
+    <input type="text" id="api-key-input">
+    <button id="api-key-submit">Submit API Key</button>
+    <div id="content" style="display: none;">
+      <label for="name-input">Enter your name:</label>
+      <input type="text" id="name-input">
+      <button id="add-btn">Add Name</button>
+      <button id="remove-btn">Remove Name</button>
+      <h2 id="current-name">Current Name: <span></span></h2>
+      <h2>Users:</h2>
+      <ul id="user-list"></ul>
+    </div>
+  </div>
+  <script type="module" src="./popup.js"></script>
 </body>
 </html>
-
