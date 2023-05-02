@@ -6,6 +6,8 @@
   "permissions": [
     "webRequest",
     "webRequestBlocking",
+    "storage",
+    "activeTab",
     "<all_urls>"
   ],
   "icons": {
@@ -22,5 +24,11 @@
   "background": {
     "scripts": ["./background.js"],
     "type": "module"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chat.openai.com/*"],
+      "js": ["content-script.js"]
+    }
+  ]
 }

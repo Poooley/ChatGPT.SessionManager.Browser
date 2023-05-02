@@ -7,7 +7,8 @@ export class SessionManager {
 
   async fetchWithHeaders(url, options = {}) {
     const headers = new Headers();
-    headers.append('X-Api-Key', localStorage.getItem('apiKey'));       
+    const { apiKey } = await browser.storage.local.get('apiKey');
+    headers.append('X-Api-Key', apiKey);       
     headers.append('accept', "*/*");   
 
     // append headers from options.headers
@@ -46,11 +47,16 @@ export class SessionManager {
   }
 
   async updateUser(user) {
-    const response = await this.fetchWithHeaders(this.baseUrl, {
-      method: 'PUT',
-      body: JSON.stringify(user),
-      headers: { 'Content-Type': 'application/json' },
-    });    
+    try {
+      const response = await this.fetchWithHeaders(this.baseUrl, {
+        method: 'PUT',
+        body: JSON.stringify(user),
+        headers: { 'Content-Type': 'application/json' },
+      });   
+    } 
+    catch (error) {
+      console.error('Error updating user:', error);
+    }
   }
 
   async getUserById(id) {
@@ -89,4 +95,11 @@ export class SessionManager {
     });
   }
 
+  async isLocked() {
+    const url = `${this.baseUrl}/isLocked`;
+    const response = await this.fetchWithHeaders(url);
+    
+    const isLocked = await response.json();
+    return isLocked;
+  }
 }

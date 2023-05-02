@@ -5,17 +5,17 @@ const apiKeyInput = document.getElementById("api-key-input");
 const apiKeySubmit = document.getElementById("api-key-submit");
 const content = document.getElementById("content");
 
-apiKeySubmit.addEventListener("click", () => {
+apiKeySubmit.addEventListener("click", async () => {
   let apiKey = apiKeyInput.value.trim();
   if (apiKey) {
     // Set API key to session storage
-    window.localStorage.setItem("apiKey", apiKey);
+    await browser.storage.local.set({ apiKey: apiKey });
     content.style.display = "block";
-    initApp();
+    await initApp();
   }
 });
 
-function initApp() {
+async function initApp() {
   const nameInput = document.getElementById("name-input");
   const addBtn = document.getElementById("add-btn");
   const removeBtn = document.getElementById("remove-btn");
@@ -35,28 +35,28 @@ function initApp() {
   }
 
   refresh(); 
-  showUsers();
+  await showUsers();
   setInterval(showUsers, 2000);
 
   // add button
-  addBtn.addEventListener("click", () => {
+  addBtn.addEventListener("click", async () => {
     let inpName = nameInput.value.trim();
     if (inpName) {
       setNameAndRefresh(inpName);
-      sessionManager.updateUser(new UserEntity(sessionId, inpName, false));
+      await sessionManager.updateUser(new UserEntity(sessionId, inpName, false));
     }
   });
 
   // remove button
-  removeBtn.addEventListener("click", () => {
+  removeBtn.addEventListener("click", async () => {
     if (sessionId && storedName) {
       storedName = "";
       localStorage.removeItem("name");
       refresh();
-      sessionManager.deleteUserById(sessionId);
+      await sessionManager.deleteUserById(sessionId);
     }
   });
-
+  
   function setNameAndRefresh(name) {
     storedName = name;
     window.localStorage.setItem("name", name);
@@ -66,6 +66,33 @@ function initApp() {
   function refresh() {
     currentName.textContent = storedName + " (" + sessionId + ")";
   }
+
+
+async function showUsers() {
+  try {
+    const newUsers = await sessionManager.getUsers();
+    const currentUsers = Array.from(userList.children).map(li => ({
+      sessionId: li.getAttribute('data-session-id'),
+      Name: li.getAttribute('data-name')
+    }));
+  
+    if (!usersEqual(newUsers, currentUsers)) {
+      userList.innerHTML = "";
+      newUsers.forEach((user) => {
+        if (user.sessionId !== sessionId) {
+          const li = document.createElement("li");
+          li.setAttribute('data-session-id', user.sessionId);
+          li.setAttribute('data-name', user.Name);
+          li.textContent = user.Name + " (" + user.Id + ")" + (user.IsLocked ? " (locks GPT)" : "");
+          userList.appendChild(li);
+        }
+      });
+    }
+  }
+  catch (err) {
+    console.error(err);
+  }
+}
 
 // Helper function to compare two user arrays
 function usersEqual(users1, users2) {
@@ -82,29 +109,8 @@ function usersEqual(users1, users2) {
   return true;
 }
 
-async function showUsers() {
-  const newUsers = await sessionManager.getUsers();
-  const currentUsers = Array.from(userList.children).map(li => ({
-    sessionId: li.getAttribute('data-session-id'),
-    Name: li.getAttribute('data-name')
-  }));
-
-  if (!usersEqual(newUsers, currentUsers)) {
-    userList.innerHTML = "";
-    newUsers.forEach((user) => {
-      if (user.sessionId !== sessionId) {
-        const li = document.createElement("li");
-        li.setAttribute('data-session-id', user.sessionId);
-        li.setAttribute('data-name', user.Name);
-        li.textContent = user.Name + " (" + user.Id + ")" + (user.IsLocked ? " (locks GPT)" : "");
-        userList.appendChild(li);
-      }
-    });
-  }
-}
-
   // Generate a random session ID
-  function generateSessionId() {
+function generateSessionId() {
     let length = 8;
     let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let result = "";
@@ -115,7 +121,11 @@ async function showUsers() {
   }
 }
 
-if (window.localStorage.getItem("apiKey")) {
-  content.style.display = "block";
-  initApp();
-}
+
+(async () => {
+  const storedData = await browser.storage.local.get('apiKey');
+  if (storedData.apiKey) {
+    content.style.display = "block";
+    await initApp();
+  }
+})();
