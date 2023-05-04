@@ -24,7 +24,7 @@
   "background": {
     "scripts": ["./background.js"],
     "type": "module"
-  },
+    },
   "content_scripts": [
     {
       "matches": ["https://chat.openai.com/*"],

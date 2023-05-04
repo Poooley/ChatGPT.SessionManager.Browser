@@ -1,27 +1,14 @@
-let sessionManager;
+let sessionManagerWebSocket;
 
 (async () => {
-  const { SessionManager } = await import(browser.runtime.getURL('SessionManagerApi.js'));
-  sessionManager = new SessionManager();
+  const { SessionManagerWebSocket } = await import(browser.runtime.getURL('SessionManagerWebSocket.js'));
+    sessionManagerWebSocket = new SessionManagerWebSocket();
+  sessionManagerWebSocket.onLockStatusChanged = checkLockStatus;
 })();
 
-
-async function checkLockStatus() {
-  const { apiKey } = await browser.storage.local.get('apiKey');
-  
-  if (apiKey == null) 
-    return;
-      
-  try {
-    const isLocked = await sessionManager.isLocked();
-    
-    const buttons = document.querySelectorAll('button.btn, button.btn-primary button.absolute');
-    buttons.forEach(button => {
-      button.disabled = isLocked;
-    });
-  } catch (error) {
-    console.error('Error checking lock status:', error);
-  }
+function checkLockStatus(isLocked) {
+  const buttons = document.querySelectorAll('button.absolute, button.btn');
+  buttons.forEach(button => {
+    button.disabled = isLocked;
+  });
 }
-
-setInterval(checkLockStatus, 2000);
