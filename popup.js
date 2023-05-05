@@ -1,5 +1,6 @@
 import { UserEntity } from './UserEntity.js';
 import { SessionManager } from './SessionManagerApi.js';
+import { SessionManagerWebSocket } from './SessionManagerWebSocket.js';
 
 const apiKeyInput = document.getElementById("api-key-input");
 const apiKeySubmit = document.getElementById("api-key-submit");
@@ -15,6 +16,8 @@ apiKeySubmit.addEventListener("click", async () => {
   }
 });
 
+let users = [];
+
 async function initApp() {
   const nameInput = document.getElementById("name-input");
   const addBtn = document.getElementById("add-btn");
@@ -23,9 +26,21 @@ async function initApp() {
   const userList = document.getElementById("user-list");
 
   const sessionManager = new SessionManager();
-
+  const sessionManagerWebSocket = new SessionManagerWebSocket();
   let storedName = window.localStorage.getItem("name") || "";
   let sessionId = window.localStorage.getItem("sessionId") || generateSessionId();
+
+  nameInput.value = storedName;
+
+  try {
+    users = await sessionManager.getUsers();
+
+    console.log(users);
+
+    showUsers();
+  } catch (err) {
+    console.error(err);
+  }
 
   if (!localStorage.getItem("sessionId")) {
     console.warn("No session ID found, generating a new one: " + sessionId);
@@ -35,8 +50,7 @@ async function initApp() {
   }
 
   refresh(); 
-  await showUsers();
-  setInterval(showUsers, 2000);
+  sessionManagerWebSocket.onUserChanged = showUsers;
 
   // add button
   addBtn.addEventListener("click", async () => {
@@ -49,11 +63,9 @@ async function initApp() {
 
   // remove button
   removeBtn.addEventListener("click", async () => {
-    if (sessionId && storedName) {
-      storedName = "";
-      localStorage.removeItem("name");
-      refresh();
-      await sessionManager.deleteUserById(sessionId);
+    if (sessionId) {
+      await sessionManager.updateUser(new UserEntity(sessionId, null, false));
+      setNameAndRefresh("");
     }
   });
   
@@ -67,46 +79,32 @@ async function initApp() {
     currentName.textContent = storedName + " (" + sessionId + ")";
   }
 
-
-async function showUsers() {
+async function showUsers(user, action) {
   try {
-    const newUsers = await sessionManager.getUsers();
-    const currentUsers = Array.from(userList.children).map(li => ({
-      sessionId: li.getAttribute('data-session-id'),
-      Name: li.getAttribute('data-name')
-    }));
-  
-    if (!usersEqual(newUsers, currentUsers)) {
-      userList.innerHTML = "";
-      newUsers.forEach((user) => {
-        if (user.sessionId !== sessionId) {
-          const li = document.createElement("li");
-          li.setAttribute('data-session-id', user.sessionId);
-          li.setAttribute('data-name', user.Name);
-          li.textContent = user.Name + " (" + user.Id + ")" + (user.IsLocked ? " (locks GPT)" : "");
-          userList.appendChild(li);
-        }
-      });
+    if (action === 1) {
+      users.push(user);
+    } else if (action === 2) {
+      const index = users.findIndex(u => u.Id === user.Id);
+      if (index !== -1) {
+        users[index] = user;
+      }
+    } else if (action === 3) {
+      users = users.filter(u => u.Id !== user.Id);
     }
-  }
-  catch (err) {
+
+    userList.innerHTML = '';
+    users.forEach((user) => {
+      console.log(`Show user ${user.Name}, ${user.Id}, ${user.IsLocked}`);      if (user.sessionId !== sessionId) {
+        const li = document.createElement('li');
+        li.setAttribute('data-session-id', user.Id);
+        li.setAttribute('data-name', user.Name);
+        li.textContent = user.Name + ' (' + user.Id + ')' + (user.IsLocked ? ' (locks GPT)' : '');
+        userList.appendChild(li);
+      }
+    });
+  } catch (err) {
     console.error(err);
   }
-}
-
-// Helper function to compare two user arrays
-function usersEqual(users1, users2) {
-  if (users1.length !== users2.length) {
-    return false;
-  }
-
-  for (let i = 0; i < users1.length; i++) {
-    if (users1[i].sessionId !== users2[i].sessionId || users1[i].Name !== users2[i].Name) {
-      return false;
-    }
-  }
-
-  return true;
 }
 
   // Generate a random session ID

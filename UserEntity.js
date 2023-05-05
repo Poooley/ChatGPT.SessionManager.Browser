@@ -4,5 +4,6 @@ export class UserEntity {
       this.Name = name;
       this.IsLocked = isLocked;
     }
+  
   }
   
