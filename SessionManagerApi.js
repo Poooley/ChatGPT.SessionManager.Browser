@@ -31,6 +31,13 @@ export class SessionManager {
     return response;
   }
 
+  async generateToken() {
+    const url = 'http://localhost:5064/api/session-manager/generate-token';
+    const response = await this.fetchWithHeaders(url);
+    const { token } = await response.json();
+    return token;
+  }  
+
   async getUsers() {
     const response = await this.fetchWithHeaders(this.baseUrl);
     const users = await response.json();

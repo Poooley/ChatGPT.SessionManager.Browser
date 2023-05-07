@@ -1,14 +1,19 @@
 export class SessionManagerWebSocket {
-    constructor() {
+    constructor(token) {
       this.onLockStatusChanged = null;
       this.onUserChanged = null;
       this._ws = null;
-      this.connectWebSocket();
+      this.connectWebSocket(token);
     }
   
-    connectWebSocket() {
-        this._ws = new WebSocket('ws://localhost:5064/api/session-manager/ws');
-    
+    async connectWebSocket(token) {
+      if (!token) {
+        console.error('Token is missing. Please generate a token before connecting.');
+        return;
+      }
+
+      this._ws = new WebSocket(`ws://localhost:5064/api/session-manager/ws?token=${token}`);
+
         this._ws.addEventListener('open', (event) => {
           console.log('WebSocket connection opened:', event);
         });
@@ -36,4 +41,4 @@ export class SessionManagerWebSocket {
         console.error('WebSocket error:', event);
       });
     }
-  }
+}

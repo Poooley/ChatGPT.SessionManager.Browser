@@ -26,7 +26,9 @@ async function initApp() {
   const userList = document.getElementById("user-list");
 
   const sessionManager = new SessionManager();
-  const sessionManagerWebSocket = new SessionManagerWebSocket();
+  let token = await sessionManager.generateToken();
+  const sessionManagerWebSocket = new SessionManagerWebSocket(token);
+  
   let storedName = window.localStorage.getItem("name") || "";
   let sessionId = window.localStorage.getItem("sessionId") || generateSessionId();
 
