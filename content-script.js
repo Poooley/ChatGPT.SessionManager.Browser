@@ -1,10 +1,10 @@
-let sessionManagerWebSocket;
+let sessionManagerApi;
 
 (async () => {
   const { SessionManagerWebSocket } = await import(browser.runtime.getURL('SessionManagerWebSocket.js'));
   const { SessionManagerApi } = await import(browser.runtime.getURL('SessionManagerApi.js'));
 
-  const sessionManagerApi = new SessionManagerApi();
+  sessionManagerApi = new SessionManagerApi();
 
   while (!(await browser.storage.local.get('apiKey')).apiKey) {
     console.log('Waiting for API key...');
@@ -12,7 +12,7 @@ let sessionManagerWebSocket;
   }
 
   let token = await sessionManagerApi.generateToken();
-  sessionManagerWebSocket = new SessionManagerWebSocket(token);
+  let sessionManagerWebSocket = new SessionManagerWebSocket(token);
   sessionManagerWebSocket.onLockStatusChanged = checkLockStatus;
 })();
 

@@ -8,11 +8,11 @@ export class SessionManagerWebSocket {
   
     async connectWebSocket(token) {
       if (!token) {
-        console.error('Token is missing. Please generate a token before connecting.');
+        console.error(`Token is missing. Please generate a token before connecting. Token is ${token}`);
         return;
       }
 
-      this._ws = new WebSocket(`ws://localhost:5064/api/session-manager/ws?token=${token}`);
+      this._ws = new WebSocket(`wss://k8s.haidinger.me/api/session-manager/ws?token=${token}`);
 
         this._ws.addEventListener('open', (event) => {
           console.log('WebSocket connection opened:', event);

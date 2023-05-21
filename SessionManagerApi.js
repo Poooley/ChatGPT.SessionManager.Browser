@@ -2,7 +2,7 @@ import { UserEntity } from './UserEntity.js';
 
 export class SessionManager {
   constructor() {
-    this.baseUrl = 'http://localhost:5064/api/session-manager/users';
+    this.baseUrl = 'https://k8s.haidinger.me/api/session-manager/users';
   }
 
   async fetchWithHeaders(url, options = {}) {
@@ -32,9 +32,10 @@ export class SessionManager {
   }
 
   async generateToken() {
-    const url = 'http://localhost:5064/api/session-manager/generate-token';
+    const url = 'https://k8s.haidinger.me/api/session-manager/generate-token';
     const response = await this.fetchWithHeaders(url);
     const { token } = await response.json();
+    console.log(`Token: ${token}`)
     return token;
   }  
 
