@@ -14,12 +14,12 @@ export class SessionManagerWebSocket {
 
       this._ws = new WebSocket(`wss://k8s.haidinger.me/api/session-manager/ws?token=${token}`);
 
-        this._ws.addEventListener('open', (event) => {
-          console.log('WebSocket connection opened:', event);
-        });
+      this._ws.addEventListener('open', (event) => {
+        console.log('WebSocket connection opened:', event);
+      });
     
-        this._ws.addEventListener('message', (event) => {
-          console.log('WebSocket message received:', event.data);
+      this._ws.addEventListener('message', (event) => {
+        console.log('WebSocket message received:', event.data);
     
         const data = JSON.parse(event.data);
 
