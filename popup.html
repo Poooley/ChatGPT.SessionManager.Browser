@@ -9,14 +9,17 @@
 <body>
   <div class="container">
     <h1>ChatGPT Session Manager</h1>
-    <label for="api-key-input">Enter your API key:</label>
-    <input type="text" id="api-key-input">
-    <button id="api-key-submit">Submit API Key</button>
+    <div id="api-key-container">
+      <label for="api-key-input">Enter your API key:</label>
+      <input type="text" id="api-key-input">
+      <button id="api-key-submit">Submit API Key</button>
+      <p id="error-message" style="display: none;"></p>
+    </div>
     <div id="content" style="display: none;">
       <label for="name-input">Enter your name:</label>
       <input type="text" id="name-input">
       <button id="add-btn">Add Name</button>
-      <button id="remove-btn">Remove Name</button>
+      <button id="remove-btn" disabled="true">Remove Name</button>
       <h2 id="current-name">Current Name: <span></span></h2>
       <h2>Users:</h2>
       <ul id="user-list"></ul>

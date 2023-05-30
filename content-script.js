@@ -8,6 +8,7 @@
     chrome.storage.local.get('apiKey', function(result) {
       apiKey = result.apiKey;
     });
+    
     if(apiKey){
       break;
     }

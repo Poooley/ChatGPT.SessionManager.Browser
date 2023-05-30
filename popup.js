@@ -15,10 +15,8 @@ apiKeySubmit.addEventListener("click", () => {
         console.error(chrome.runtime.lastError.message);
         return;
       }
-      
-      content.style.display = "block";
       initApp();
-    });
+    })
   }
 });
 
@@ -39,7 +37,7 @@ async function initApp() {
   }
   catch (err) {
     console.error("Got error while generating token, please check your API key.");
-
+    showErrorMessage("Got error while generating token, please check your API key.");
     return;
   }
 
@@ -47,8 +45,6 @@ async function initApp() {
   
   let storedName = window.localStorage.getItem("name") || "";
   let sessionId = window.localStorage.getItem("sessionId") || generateSessionId();
-
-  nameInput.value = storedName;
 
   try {
     users = await sessionManager.getUsers();
@@ -61,6 +57,10 @@ async function initApp() {
       console.error(errorMessage);
     });
   }
+
+  // remove stuff or make visible
+  document.getElementById("api-key-container").style.display = "none";
+  content.style.display = "block";
 
   if (!localStorage.getItem("sessionId")) {
     console.warn("No session ID found, generating a new one: " + sessionId);
@@ -104,8 +104,9 @@ async function initApp() {
         err.text().then(errorMessage => {
           console.error(errorMessage);
       });
-        setNameAndRefresh("");
       }
+
+      setNameAndRefresh("");
     }
   });
   
@@ -117,6 +118,19 @@ async function initApp() {
 
   function refresh() {
     currentName.textContent = storedName + " (" + sessionId + ")";
+
+    if (storedName) {
+      nameInput.value = storedName;
+      removeBtn.disabled = false;
+
+      addBtn.textContent = "Update Name";
+    }
+    else {
+      nameInput.value = "";
+      removeBtn.disabled = true;
+      
+      addBtn.textContent = "Add Name";
+    }
   }
 
 async function showUsers(user, action) {
@@ -152,6 +166,13 @@ async function showUsers(user, action) {
   }
 }
 
+function showErrorMessage(message) {
+  const errorMessage = document.getElementById("error-message");
+  errorMessage.textContent = message;
+  errorMessage.style.display = "block";
+  apiKeyInput.focus();
+}
+
   // Generate a random session ID
 function generateSessionId() {
     let length = 8;
@@ -166,11 +187,10 @@ function generateSessionId() {
 
 
 (async () => {
-  chrome.storage.local.get('apiKey', async function(result) {
+  chrome.storage.local.get('apiKey', async function(result) { 
     const apiKey = result.apiKey;
 
     if (apiKey) {
-      content.style.display = "block";
       await initApp();
     }
 });
