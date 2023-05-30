@@ -1,3 +1,4 @@
+
 body {
   background-color: #f1f1f1;
   font-family: sans-serif;
@@ -5,7 +6,8 @@ body {
 }
 
 .container {
-  max-width: 500px;
+  min-width: 600px; 
+  max-width: 800px; 
   margin: 0 auto;
   padding: 20px;
   background-color: #fff;
@@ -99,4 +101,72 @@ ul li .delete-btn:disabled {
 ul li .delete-btn:enabled:hover {
   background-color: #d32f2f;
   cursor: pointer;
+}
+
+
+body.dark-mode {
+  background-color: #181818;
+  color: #ffffff;
+}
+
+body.dark-mode .container {
+  background-color: #282828;
+}
+
+body.dark-mode input[type="text"],
+body.dark-mode button {
+  background-color: #383838;
+  color: #ffffff;
+}
+
+body.dark-mode ul li {
+  border-bottom: 1px solid #ffffff;
+}
+
+body.dark-mode button:disabled {
+  background-color: #7f8c8d;
+}
+
+.locked {
+  color: #ff0000;
+}
+
+.locked:hover {
+  background-color: #f8a6a6;
+}
+
+.error {
+  animation: flashError 0.5s linear;
+}
+
+@keyframes flashError {
+  0%, 100% {
+    background-color: #ffffff;
+  }
+  20% {
+    background-color: #ff0000;
+  }
+}
+
+#error-message {
+  color: red;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+body.dark-mode .error {
+  animation: flashErrorDark 0.5s linear;
+}
+
+@keyframes flashErrorDark {
+  0%, 100% {
+    background-color: #383838;
+  }
+  20% {
+    background-color: #ff0000;
+  }
+}
+
+body.dark-mode #error-message {
+  color: #ff4d4d;
 }

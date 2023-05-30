@@ -5,6 +5,7 @@ import { SessionManagerWebSocket } from './SessionManagerWebSocket.js';
 const apiKeyInput = document.getElementById("api-key-input");
 const apiKeySubmit = document.getElementById("api-key-submit");
 const content = document.getElementById("content");
+const apiKeyContainer = document.getElementById("api-key-container");
 
 apiKeySubmit.addEventListener("click", () => {
   let apiKey = apiKeyInput.value.trim();
@@ -59,7 +60,7 @@ async function initApp() {
   }
 
   // remove stuff or make visible
-  document.getElementById("api-key-container").style.display = "none";
+  apiKeyContainer.style.display = "none";
   content.style.display = "block";
 
   if (!localStorage.getItem("sessionId")) {
@@ -157,20 +158,37 @@ async function showUsers(user, action) {
         const li = document.createElement('li');
         li.setAttribute('data-session-id', user.Id);
         li.setAttribute('data-name', user.Name);
-        li.textContent = user.Name + ' (' + user.Id + ')' + (user.IsLocked ? ' (locks GPT)' : '');
+        li.textContent = user.Name + ' (' + user.Id + ')' + (user.IsLocked ? ' - locks GPT' : '');
         userList.appendChild(li);
+
+        if (user.IsLocked) {
+          li.classList.add("locked");
+        }
       }
     });
   } catch (err) {
     console.error(err);
-  }
+  } 
 }
+
+/*
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+darkModeToggle.addEventListener('click', () => {
+  console.log('Toggle dark mode');
+  document.body.classList.toggle('dark-mode');
+});
+*/
 
 function showErrorMessage(message) {
   const errorMessage = document.getElementById("error-message");
   errorMessage.textContent = message;
   errorMessage.style.display = "block";
+
+  apiKeyInput.classList.add("error");
+  setTimeout(() => apiKeyInput.classList.remove("error"), 500);
+  
   apiKeyInput.focus();
+
 }
 
   // Generate a random session ID
@@ -189,7 +207,7 @@ function generateSessionId() {
 (async () => {
   chrome.storage.local.get('apiKey', async function(result) { 
     const apiKey = result.apiKey;
-
+    apiKeyContainer.style.display = "block";
     if (apiKey) {
       await initApp();
     }
