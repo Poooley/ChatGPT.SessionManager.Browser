@@ -6,13 +6,19 @@ const apiKeyInput = document.getElementById("api-key-input");
 const apiKeySubmit = document.getElementById("api-key-submit");
 const content = document.getElementById("content");
 
-apiKeySubmit.addEventListener("click", async () => {
+apiKeySubmit.addEventListener("click", () => {
   let apiKey = apiKeyInput.value.trim();
   if (apiKey) {
     // Set API key to session storage
-    await browser.storage.local.set({ apiKey: apiKey });
-    content.style.display = "block";
-    await initApp();
+    chrome.storage.local.set({ apiKey: apiKey }, function() {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+        return;
+      }
+      
+      content.style.display = "block";
+      initApp();
+    });
   }
 });
 
@@ -26,7 +32,17 @@ async function initApp() {
   const userList = document.getElementById("user-list");
 
   const sessionManager = new SessionManager();
-  let token = await sessionManager.generateToken();
+  let token;
+
+  try {
+    token = await sessionManager.generateToken();
+  }
+  catch (err) {
+    console.error("Got error while generating token, please check your API key.");
+
+    return;
+  }
+
   const sessionManagerWebSocket = new SessionManagerWebSocket(token);
   
   let storedName = window.localStorage.getItem("name") || "";
@@ -41,7 +57,9 @@ async function initApp() {
 
     showUsers();
   } catch (err) {
-    console.error(err);
+    err.getText().then(errorMessage => {
+      console.error(errorMessage);
+    });
   }
 
   if (!localStorage.getItem("sessionId")) {
@@ -59,15 +77,35 @@ async function initApp() {
     let inpName = nameInput.value.trim();
     if (inpName) {
       setNameAndRefresh(inpName);
-      await sessionManager.updateUser(new UserEntity(sessionId, inpName, false));
+      try {
+        await sessionManager.updateUser(new UserEntity(sessionId, inpName, false));
+      }
+      catch (err) {
+        err.text().then(errorMessage => {
+          console.error(errorMessage);
+          // if check when user is not found
+          if (err.status === 404) {
+            console.log("User not found, creating a new one: " + sessionId);
+            sessionManager.addUser(new UserEntity(sessionId, inpName, false));
+          }
+       });
+     }
     }
   });
+  
 
   // remove button
   removeBtn.addEventListener("click", async () => {
     if (sessionId) {
-      await sessionManager.updateUser(new UserEntity(sessionId, null, false));
-      setNameAndRefresh("");
+      try {
+        await sessionManager.updateUser(new UserEntity(sessionId, null, false));
+      }
+      catch (err) {
+        err.text().then(errorMessage => {
+          console.error(errorMessage);
+      });
+        setNameAndRefresh("");
+      }
     }
   });
   
@@ -82,6 +120,8 @@ async function initApp() {
   }
 
 async function showUsers(user, action) {
+  console.log(`Show users ${user}, ${action}`);
+
   try {
     if (action === 1) {
       users.push(user);
@@ -89,6 +129,9 @@ async function showUsers(user, action) {
       const index = users.findIndex(u => u.Id === user.Id);
       if (index !== -1) {
         users[index] = user;
+      }
+      else {
+        users.push(user);
       }
     } else if (action === 3) {
       users = users.filter(u => u.Id !== user.Id);
@@ -123,9 +166,12 @@ function generateSessionId() {
 
 
 (async () => {
-  const storedData = await browser.storage.local.get('apiKey');
-  if (storedData.apiKey) {
-    content.style.display = "block";
-    await initApp();
-  }
+  chrome.storage.local.get('apiKey', async function(result) {
+    const apiKey = result.apiKey;
+
+    if (apiKey) {
+      content.style.display = "block";
+      await initApp();
+    }
+});
 })();

@@ -5,31 +5,38 @@ export class SessionManager {
     this.baseUrl = 'https://k8s.haidinger.me/api/session-manager/users';
   }
 
-  async fetchWithHeaders(url, options = {}) {
-    const headers = new Headers();
-    const { apiKey } = await browser.storage.local.get('apiKey');
-    headers.append('X-Api-Key', apiKey);       
-    headers.append('accept', "*/*");   
+fetchWithHeaders(url, options = {}) {
+  const headers = new Headers();
+  
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get('apiKey', async function(result) {
+      const apiKey = result.apiKey;
 
-    // append headers from options.headers
-    if (options.headers) {
-      for (const [key, value] of Object.entries(options.headers)) {
-        headers.append(key, value);
+      headers.append('X-Api-Key', apiKey);       
+      headers.append('accept', "*/*");   
+  
+      // append headers from options.headers
+      if (options.headers) {
+        for (const [key, value] of Object.entries(options.headers)) {
+          headers.append(key, value);
+        }
       }
-    }
+  
+      const requestOptions = {
+        ...options,
+        headers: headers
+      };
+  
+      const response = await fetch(url, requestOptions);
+  
+      if (!response.ok) {
+        reject(response);
+      }
 
-    const requestOptions = {
-      ...options,
-      headers: headers
-    };
-
-    const response = await fetch(url, requestOptions);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response;
-  }
+      resolve(response);
+    });
+  });
+}
 
   async generateToken() {
     const url = 'https://k8s.haidinger.me/api/session-manager/generate-token';
@@ -55,17 +62,12 @@ export class SessionManager {
   }
 
   async updateUser(user) {
-    try {
       const response = await this.fetchWithHeaders(this.baseUrl, {
         method: 'PUT',
         body: JSON.stringify(user),
         headers: { 'Content-Type': 'application/json' },
-      });   
-    } 
-    catch (error) {
-      console.error('Error updating user:', error);
+      });
     }
-  }
 
   async getUserById(id) {
     const url = `${this.baseUrl}/${id}`;
