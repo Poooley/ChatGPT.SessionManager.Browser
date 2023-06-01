@@ -29,6 +29,7 @@
 })();
 
 function checkLockStatus(isLocked) {
+  console.info(`Lock status changed to ${isLocked}`);
   const buttons = document.querySelectorAll('button.absolute, button.btn');
   buttons.forEach(button => {
     button.disabled = isLocked;
