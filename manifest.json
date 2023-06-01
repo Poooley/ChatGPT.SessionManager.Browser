@@ -22,13 +22,19 @@
     }
   },
   "background": {
-    "scripts": ["./background.js"],
+    "scripts": [
+      "./background.js"
+    ],
     "type": "module"
-    },
+  },
   "content_scripts": [
     {
-      "matches": ["https://chat.openai.com/*"],
-      "js": ["content-script.js"]
+      "matches": [
+        "https://chat.openai.com/*"
+      ],
+      "js": [
+        "content-script.js"
+      ]
     }
   ]
 }

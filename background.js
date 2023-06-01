@@ -1,7 +1,7 @@
 (async () => {
-  const { SessionManager } = await import('./SessionManagerApi.js');
+  const { SessionManagerApi } = await import('./SessionManagerApi.js');
 
-const sessionManager = new SessionManager();
+const sessionManagerApi = new SessionManagerApi();
 
 chrome.webRequest.onHeadersReceived.addListener(
   async function (details) {
@@ -12,7 +12,7 @@ chrome.webRequest.onHeadersReceived.addListener(
           console.log('Request to /conversation started:', details.url);
           // Make request to another API here
           try {
-            await sessionManager.lockUser(window.localStorage.getItem("sessionId"));
+            await sessionManagerApi.lockUser(window.localStorage.getItem("sessionId"));
           }
           catch (err) {
             console.error(err);
@@ -30,7 +30,7 @@ chrome.webRequest.onCompleted.addListener(
     if (details.url === 'https://chat.openai.com/backend-api/conversation') {
       console.log('Request to /conversation finished:', details.url);
       try {
-        await sessionManager.unlockUser(window.localStorage.getItem("sessionId"));
+        await sessionManagerApi.unlockUser(window.localStorage.getItem("sessionId"));
       }
       catch (err) {
         console.error(err);

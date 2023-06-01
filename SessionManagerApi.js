@@ -1,6 +1,6 @@
 import { UserEntity } from './UserEntity.js';
 
-export class SessionManager {
+export class SessionManagerApi {
   constructor() {
     this.baseUrl = 'https://k8s.haidinger.me/api/session-manager/users';
   }
@@ -38,8 +38,8 @@ fetchWithHeaders(url, options = {}) {
   });
 }
 
-  async generateToken() {
-    const url = 'https://k8s.haidinger.me/api/session-manager/generate-token';
+  async generateToken(id) {
+    const url = `https://k8s.haidinger.me/api/session-manager/generate-token/${id}`;
     const response = await this.fetchWithHeaders(url);
     const { token } = await response.json();
     console.log(`Token: ${token}`)
@@ -53,11 +53,12 @@ fetchWithHeaders(url, options = {}) {
   }
 
   async addUser(user) {
-    const response = await this.fetchWithHeaders(this.baseUrl, {
+    await this.fetchWithHeaders(this.baseUrl, {
       method: 'POST',
       body: JSON.stringify(user),
       headers: { 'Content-Type': 'application/json' },
     });
+
     return new UserEntity(user.Id, user.Name, user.IsLocked);
   }
 

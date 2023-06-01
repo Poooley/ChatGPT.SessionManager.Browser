@@ -1,5 +1,5 @@
 import { UserEntity } from './UserEntity.js';
-import { SessionManager } from './SessionManagerApi.js';
+import { SessionManagerApi } from './SessionManagerApi.js';
 import { SessionManagerWebSocket } from './SessionManagerWebSocket.js';
 
 const apiKeyInput = document.getElementById("api-key-input");
@@ -11,7 +11,7 @@ apiKeySubmit.addEventListener("click", () => {
   let apiKey = apiKeyInput.value.trim();
   if (apiKey) {
     // Set API key to session storage
-    chrome.storage.local.set({ apiKey: apiKey }, function() {
+    chrome.storage.local.set({ apiKey: apiKey }, function () {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.message);
         return;
@@ -30,47 +30,66 @@ async function initApp() {
   const currentName = document.getElementById("current-name").querySelector("span");
   const userList = document.getElementById("user-list");
 
-  const sessionManager = new SessionManager();
-  let token;
-
-  try {
-    token = await sessionManager.generateToken();
-  }
-  catch (err) {
-    console.error("Got error while generating token, please check your API key.");
-    showErrorMessage("Got error while generating token, please check your API key.");
-    return;
-  }
-
-  const sessionManagerWebSocket = new SessionManagerWebSocket(token);
-  
   let storedName = window.localStorage.getItem("name") || "";
-  let sessionId = window.localStorage.getItem("sessionId") || generateSessionId();
+  let sessionId = window.localStorage.getItem("sessionId") || "";
 
-  try {
-    users = await sessionManager.getUsers();
+  const sessionManager = new SessionManagerApi();
+  const sessionManagerWebSocket = new SessionManagerWebSocket(false);
 
-    console.log(users);
+  // check if session ID is already set
 
-    showUsers();
-  } catch (err) {
-    err.getText().then(errorMessage => {
-      console.error(errorMessage);
-    });
-  }
+  if (!window.localStorage.getItem("sessionId")) {
 
-  // remove stuff or make visible
-  apiKeyContainer.style.display = "none";
-  content.style.display = "block";
+    sessionId = generateSessionId();
 
-  if (!localStorage.getItem("sessionId")) {
-    console.warn("No session ID found, generating a new one: " + sessionId);
-    window.localStorage.setItem("sessionId", sessionId);
-    sessionManager.addUser(new UserEntity(sessionId, null, false));
+    try {
+      // try to add user      
+      await sessionManager.addUser(new UserEntity(sessionId, null, false));
+
+      // set session ID to session storage
+      console.warn("User instance created with session ID: " + sessionId);
+      window.localStorage.setItem("sessionId", sessionId);
+      chrome.storage.local.set({ sessionId: sessionId }, async function () {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError.message);
+          return;
+        }
+      });
+    }
+    catch (err) {
+      showErrorMessage("Got error while adding user, please check your API key.");
+      return;
+    }
+
     console.log("User instance created with session ID: " + sessionId);
   }
 
-  refresh(); 
+  // CONNECT TO WEBSOCKET
+  try {
+    await sessionManagerWebSocket.connectWebSocket(sessionId);
+  }
+  catch (err) {
+    console.debug("Got error while connecting to WebSocket.");
+    return;
+  }
+
+  // SHOW ALL USERS
+  try {
+    users = await sessionManager.getUsers();
+
+    console.log(`Got ${users.length} users.`);
+
+    showUsers();
+  } catch (err) {
+    console.error("Error while getting and showing users.");
+    return;
+  }
+
+  // MAKE THE API CONTAINER INVISIBLE AND SHOW THE CONTENT
+  apiKeyContainer.style.display = "none";
+  content.style.display = "block";
+
+  refresh();
   sessionManagerWebSocket.onUserChanged = showUsers;
 
   // add button
@@ -78,22 +97,24 @@ async function initApp() {
     let inpName = nameInput.value.trim();
     if (inpName) {
       setNameAndRefresh(inpName);
+
       try {
         await sessionManager.updateUser(new UserEntity(sessionId, inpName, false));
       }
       catch (err) {
         err.text().then(errorMessage => {
           console.error(errorMessage);
+
           // if check when user is not found
+
           if (err.status === 404) {
             console.log("User not found, creating a new one: " + sessionId);
             sessionManager.addUser(new UserEntity(sessionId, inpName, false));
           }
-       });
-     }
+        });
+      }
     }
   });
-  
 
   // remove button
   removeBtn.addEventListener("click", async () => {
@@ -104,16 +125,17 @@ async function initApp() {
       catch (err) {
         err.text().then(errorMessage => {
           console.error(errorMessage);
-      });
+        });
       }
 
       setNameAndRefresh("");
     }
   });
-  
+
   function setNameAndRefresh(name) {
     storedName = name;
     window.localStorage.setItem("name", name);
+
     refresh();
   }
 
@@ -129,70 +151,72 @@ async function initApp() {
     else {
       nameInput.value = "";
       removeBtn.disabled = true;
-      
+
       addBtn.textContent = "Add Name";
     }
   }
 
-async function showUsers(user, action) {
-  console.log(`Show users ${user}, ${action}`);
+  async function showUsers(user, action) {
+    console.log(`Show users ${user}, ${action}`);
 
-  try {
-    if (action === 1) {
-      users.push(user);
-    } else if (action === 2) {
-      const index = users.findIndex(u => u.Id === user.Id);
-      if (index !== -1) {
-        users[index] = user;
-      }
-      else {
+    try {
+      if (action === 1) {
         users.push(user);
       }
-    } else if (action === 3) {
-      users = users.filter(u => u.Id !== user.Id);
-    }
-
-    userList.innerHTML = '';
-    users.forEach((user) => {
-      console.log(`Show user ${user.Name}, ${user.Id}, ${user.IsLocked}`);      if (user.sessionId !== sessionId) {
-        const li = document.createElement('li');
-        li.setAttribute('data-session-id', user.Id);
-        li.setAttribute('data-name', user.Name);
-        li.textContent = user.Name + ' (' + user.Id + ')' + (user.IsLocked ? ' - locks GPT' : '');
-        userList.appendChild(li);
-
-        if (user.IsLocked) {
-          li.classList.add("locked");
+      else if (action === 2) {
+        const index = users.findIndex(u => u.Id === user.Id);
+        if (index !== -1) {
+          users[index] = user;
+        }
+        else {
+          users.push(user);
         }
       }
-    });
-  } catch (err) {
-    console.error(err);
-  } 
-}
+      else if (action === 3) {
+        users = users.filter(u => u.Id !== user.Id);
+      }
 
-/*
-const darkModeToggle = document.getElementById('dark-mode-toggle');
-darkModeToggle.addEventListener('click', () => {
-  console.log('Toggle dark mode');
-  document.body.classList.toggle('dark-mode');
-});
-*/
+      userList.innerHTML = '';
+      users.forEach((user) => {
+        console.log(`Show user ${user.Name}, ${user.Id}, ${user.IsLocked}`); if (user.sessionId !== sessionId) {
+          const li = document.createElement('li');
+          li.setAttribute('data-session-id', user.Id);
+          li.setAttribute('data-name', user.Name);
+          li.textContent = user.Name + ' (' + user.Id + ')' + (user.IsLocked ? ' - locks GPT' : '');
+          userList.appendChild(li);
 
-function showErrorMessage(message) {
-  const errorMessage = document.getElementById("error-message");
-  errorMessage.textContent = message;
-  errorMessage.style.display = "block";
+          if (user.IsLocked) {
+            li.classList.add("locked");
+          }
+        }
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
-  apiKeyInput.classList.add("error");
-  setTimeout(() => apiKeyInput.classList.remove("error"), 500);
-  
-  apiKeyInput.focus();
+  /*
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
+  darkModeToggle.addEventListener('click', () => {
+    console.log('Toggle dark mode');
+    document.body.classList.toggle('dark-mode');
+  });
+  */
 
-}
+  function showErrorMessage(message) {
+    const errorMessage = document.getElementById("error-message");
+    errorMessage.textContent = message;
+    errorMessage.style.display = "block";
+
+    apiKeyInput.classList.add("error");
+    setTimeout(() => apiKeyInput.classList.remove("error"), 500);
+
+    apiKeyInput.focus();
+
+  }
 
   // Generate a random session ID
-function generateSessionId() {
+  function generateSessionId() {
     let length = 8;
     let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let result = "";
@@ -205,11 +229,11 @@ function generateSessionId() {
 
 
 (async () => {
-  chrome.storage.local.get('apiKey', async function(result) { 
+  chrome.storage.local.get('apiKey', async function (result) {
     const apiKey = result.apiKey;
     apiKeyContainer.style.display = "block";
     if (apiKey) {
       await initApp();
     }
-});
+  });
 })();
