@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "ChatGPT Session Manager",
-  "version": "1.2",
+  "version": "1.4",
   "description": "Enables teams to collaborate on chat responses using ChatGPT",
   "permissions": [
     "webRequest",
@@ -13,14 +13,14 @@
     "https://chat.openai.com/*"
   ],
   "icons": {
-    "48": "icons/logo.png",
-    "96": "icons/logo.png"
+    "48": "icons/logo-48.png",
+    "96": "icons/logo-96.png"
   },
   "browser_action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "48": "icons/logo.png",
-      "96": "icons/logo.png"
+      "48": "icons/logo-48.png",
+      "96": "icons/logo-96.png"
     }
   },
   "background": {
