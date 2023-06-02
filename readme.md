@@ -4,11 +4,11 @@ This extension enables teams to collaborate on chat responses using ChatGPT. The
 
 ## Run the extension
 
-``sh
+```bash
 web-ext run --verbose
-``
+```
 
 ## Build the extension
-``sh
+```bash
 web-ext build
-``
+```
