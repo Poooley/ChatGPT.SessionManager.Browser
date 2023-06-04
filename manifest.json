@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "ChatGPT Session Manager",
-  "version": "1.4",
+  "version": "1.3",
   "description": "Enables teams to collaborate on chat responses using ChatGPT",
   "permissions": [
     "webRequest",
@@ -38,5 +38,10 @@
         "content-script.js"
       ]
     }
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "update_url": "https://k8s.haidinger.me/firefox/updates.json"
+    }
+  }
 }
